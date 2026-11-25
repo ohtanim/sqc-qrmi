@@ -1,0 +1,23 @@
+services:
+  sqc-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SQC_UID: "1000"
+        SQC_GID: "1000"
+    image: sqc-dev:latest
+    platform: linux/arm64
+    ports:
+      - "30001:30001"   # simple TCP RPC
+      - "30002:30002"   # gRPC
+    # Podman only: map your Mac user to sqc (uid 1000) so /shared is writable
+    # and files created there are owned by you on the Mac side.
+    # Remove this line if you use Docker.
+    userns_mode: "keep-id:uid=1000,gid=1000"
+    user: root            # entrypoint needs root to start munged/sshd
+    volumes:
+      - ./shared:/shared
+    working_dir: /shared/sqc-scheduler
+    stdin_open: true
+    tty: true
